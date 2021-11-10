@@ -11,31 +11,39 @@ public class DoorManager : MonoBehaviour
     public Material stoneBrickUncolored;
     public Material woodDoorUncolored;
 
+    private GameObject doorWall_, leftDoor_, rightDoor_;
+
     // Start is called before the first frame update
     void Start()
     {
-        GameObject doorWall = new GameObject();
-        doorWall.transform.position = new Vector3(0f, 0f, 5f);
-        doorWall.AddComponent<DoorWall>();
-        doorWall.GetComponent<DoorWall>().SetMaterial(stoneBrickUncolored);
-        doorWall.GetComponent<DoorWall>().CreateFaces();
+        doorWall_ = new GameObject();
+        doorWall_.transform.position = new Vector3(0f, 0f, 5f);
+        doorWall_.AddComponent<DoorWall>();
+        doorWall_.GetComponent<DoorWall>().SetMaterial(stoneBrickUncolored);
+        doorWall_.GetComponent<DoorWall>().CreateFaces();
 
-        GameObject leftDoor = new GameObject();
-        leftDoor.transform.position = new Vector3(-2.5f, 0f, 5f - 0.25f);
-        leftDoor.AddComponent<Door>();
-        leftDoor.GetComponent<Door>().SetMaterial(woodDoorUncolored);
-        leftDoor.GetComponent<Door>().CreateFaces();
+        leftDoor_ = new GameObject();
+        leftDoor_.transform.position = new Vector3(-2.5f, 0f, 5f - 0.25f);
+        leftDoor_.AddComponent<Door>();
+        leftDoor_.GetComponent<Door>().SetMaterial(woodDoorUncolored);
+        leftDoor_.GetComponent<Door>().CreateFaces();
+        leftDoor_.GetComponent<Door>().SetPivot();
 
-        GameObject rightDoor = new GameObject();
-        rightDoor.transform.position = new Vector3(2.5f, 0f, 5f - 0.25f);
-        rightDoor.AddComponent<Door>();
-        rightDoor.GetComponent<Door>().SetMaterial(woodDoorUncolored);
-        rightDoor.GetComponent<Door>().CreateFaces();
+        rightDoor_ = new GameObject();
+        rightDoor_.transform.position = new Vector3(2.5f, 0f, 5f - 0.25f);
+        rightDoor_.AddComponent<Door>();
+        rightDoor_.GetComponent<Door>().SetMaterial(woodDoorUncolored);
+        rightDoor_.GetComponent<Door>().CreateFaces();
+        rightDoor_.GetComponent<Door>().SetPivot();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.anyKeyDown)
+        {
+            leftDoor_.GetComponent<Door>().Toggle();
+            rightDoor_.GetComponent<Door>().Toggle();
+        }
     }
 }

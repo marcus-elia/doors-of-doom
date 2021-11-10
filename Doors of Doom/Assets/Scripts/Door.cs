@@ -26,14 +26,14 @@ public class Door : MonoBehaviour
 
     private float angle_ = 0;
 
-    private float speed_ = 1f;
+    // The negative makes it open ccw
+    private float speed_ = -0.1f;
 
     private Vector3 pivot_;
 
     // Start is called before the first frame update
     void Start()
     {
-        pivot_ = transform.position + transform.right * width_ / 2f - transform.forward * height_ / 2f;
     }
 
     // Update is called once per frame
@@ -41,10 +41,10 @@ public class Door : MonoBehaviour
     {
         if (isOpening_)
         {
-            if (angle_ + speed_ > 90)
+            if (angle_ + speed_ < -90)
             {
-                angle_ = 90;
-                transform.RotateAround(pivot_, Vector3.up, 90 - angle_);
+                angle_ = -90;
+                transform.RotateAround(pivot_, Vector3.up, -90 - angle_);
                 isOpen_ = true;
                 isOpening_ = false;
             }
@@ -56,7 +56,7 @@ public class Door : MonoBehaviour
         }
         if (isClosing_)
         {
-            if (angle_ - speed_ < 0)
+            if (angle_ - speed_ > 0)
             {
                 angle_ = 0;
                 transform.RotateAround(pivot_, Vector3.up, 0 - angle_);
@@ -80,6 +80,10 @@ public class Door : MonoBehaviour
     public void SetMaterial(Material inputMat)
     {
         mat_ = inputMat;
+    }
+    public void SetPivot()
+    {
+        pivot_ = pivot_ = transform.position + transform.right * width_ / 2f + transform.forward * depth_/2;
     }
     public void CreateFaces()
     {
@@ -164,18 +168,26 @@ public class Door : MonoBehaviour
 
     public void Open()
     {
-        if (isClosed_)
-        {
-            isClosed_ = false;
-            isOpening_ = true;
-        }
+        isClosed_ = false;
+        isOpening_ = true;
     }
     public void Close()
     {
-        if (isOpen_)
+        isOpen_ = false;
+        isClosing_ = true;
+    }
+
+    public void Toggle()
+    {
+        if (isClosed_ || isClosing_)
         {
-            isOpen_ = false;
-            isClosing_ = true;
+            isClosing_ = false;
+            Open();
+        }
+        else if(isOpen_ || isOpening_)
+        {
+            isOpening_ = false;
+            Close();
         }
     }
 } 
