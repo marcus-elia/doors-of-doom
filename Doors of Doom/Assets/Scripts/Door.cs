@@ -4,77 +4,130 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    public float xWidth = 2f;
-    public float zWidth = 4f;
+    // Dimensions of the door
+    private float width_ = 3f;
+    private float height_ = 6f;
+    private float depth_ = 0.5f;
 
-    private bool isOpening = false;
-    private bool isClosing = false;
-    private bool isOpen = false;
-    private bool isClosed = true;
+    // Quads
+    private GameObject topFace;
+    private GameObject bottomFace;
+    private GameObject frontFace;
+    private GameObject backFace;
+    private GameObject leftFace;
+    private GameObject rightFace;
 
-    private float angle = 0;
+    private bool isOpening_ = false;
+    private bool isClosing_ = false;
+    private bool isOpen_ = false;
+    private bool isClosed_ = true;
 
-    private float speed = 1f;
+    private float angle_ = 0;
 
-    private Vector3 pivot;
+    private float speed_ = 1f;
+
+    private Vector3 pivot_;
 
     // Start is called before the first frame update
     void Start()
     {
-        pivot = transform.position - transform.right * xWidth / 2f - transform.forward * zWidth / 2f;
+        pivot_ = transform.position - transform.right * width_ / 2f - transform.forward * height_ / 2f;
+        this.CreateFaces();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isOpening)
+        if (isOpening_)
         {
-            if (angle + speed > 90)
+            if (angle_ + speed_ > 90)
             {
-                angle = 90;
-                transform.RotateAround(pivot, Vector3.up, 90 - angle);
-                isOpen = true;
-                isOpening = false;
+                angle_ = 90;
+                transform.RotateAround(pivot_, Vector3.up, 90 - angle_);
+                isOpen_ = true;
+                isOpening_ = false;
             }
             else
             {
-                angle += speed;
-                transform.RotateAround(pivot, Vector3.up, speed);
+                angle_ += speed_;
+                transform.RotateAround(pivot_, Vector3.up, speed_);
             }
         }
-        if (isClosing)
+        if (isClosing_)
         {
-            if (angle - speed < 0)
+            if (angle_ - speed_ < 0)
             {
-                angle = 0;
-                transform.RotateAround(pivot, Vector3.up, 0 - angle);
-                isClosed = true;
-                isClosing = false;
+                angle_ = 0;
+                transform.RotateAround(pivot_, Vector3.up, 0 - angle_);
+                isClosed_ = true;
+                isClosing_ = false;
             }
             else
             {
-                angle -= speed;
-                transform.RotateAround(pivot, Vector3.up, -speed);
+                angle_ -= speed_;
+                transform.RotateAround(pivot_, Vector3.up, -speed_);
             }
         }
+    }
 
+    // ===================================
+    //
+    //      Initialization Functions
+    //
+    // ===================================
+    public void CreateFaces()
+    {
+        topFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        topFace.transform.SetParent(transform);
+        topFace.transform.localScale = new Vector3(width_, depth_, 1f);
+        topFace.transform.localPosition = height_ / 2f * Vector3.up;
+        topFace.transform.Rotate(Vector3.right, 90f);
 
+        bottomFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        bottomFace.transform.SetParent(transform);
+        bottomFace.transform.localScale = new Vector3(width_, depth_, 1f);
+        bottomFace.transform.localPosition = height_ / 2f * Vector3.down;
+        bottomFace.transform.Rotate(Vector3.right, -90f);
+
+        backFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        backFace.transform.SetParent(transform);
+        backFace.transform.localScale = new Vector3(width_, height_, 1f);
+        backFace.transform.localPosition = depth_ / 2f * Vector3.forward;
+        backFace.transform.Rotate(Vector3.up, 180f);
+
+        frontFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        frontFace.transform.SetParent(transform);
+        frontFace.transform.localScale = new Vector3(width_, height_, 1f);
+        frontFace.transform.localPosition = depth_ / 2f * Vector3.back;
+        // Don't need to rotate this one
+
+        rightFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        rightFace.transform.SetParent(transform);
+        rightFace.transform.localScale = new Vector3(depth_, height_, 1f);
+        rightFace.transform.localPosition = width_ / 2f * Vector3.right;
+        rightFace.transform.Rotate(Vector3.up, -90f);
+
+        leftFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        leftFace.transform.SetParent(transform);
+        leftFace.transform.localScale = new Vector3(depth_, height_, 1f);
+        leftFace.transform.localPosition = width_ / 2f * Vector3.left;
+        leftFace.transform.Rotate(Vector3.up, 90f);
     }
 
     public void Open()
     {
-        if (isClosed)
+        if (isClosed_)
         {
-            isClosed = false;
-            isOpening = true;
+            isClosed_ = false;
+            isOpening_ = true;
         }
     }
     public void Close()
     {
-        if (isOpen)
+        if (isOpen_)
         {
-            isOpen = false;
-            isClosing = true;
+            isOpen_ = false;
+            isClosing_ = true;
         }
     }
 } 
