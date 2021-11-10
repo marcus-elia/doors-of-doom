@@ -55,13 +55,10 @@ public class DoorWall : MonoBehaviour
 
     public void CreateFaces()
     {
-        //this.InitializeFaces();
-        //this.AddTopFaceMesh();
-        //topFace.GetComponent<Renderer>().material = mat_;
-        //leftFace.GetComponent<MeshRenderer>().material = mat_;
-        //rightFace.GetComponent<MeshRenderer>().material = mat_;
-        //middleFace.GetComponent<MeshRenderer>().material = mat_;
         this.CreateTopFace();
+        this.CreateLeftFace();
+        this.CreateRightFace();
+        this.CreateMiddleFace();
     }
 
     public void CreateTopFace()
@@ -71,85 +68,43 @@ public class DoorWall : MonoBehaviour
         topFace.GetComponent<QuadCreator>().SetParameters(width_, height_ - doorHeight_, 0, doorHeight_ / height_, 1, 1, mat_);
         topFace.GetComponent<QuadCreator>().CreateMesh();
         topFace.transform.SetParent(transform);
-        //topFace.transform.localScale = new Vector3(width_, height_ - doorHeight_, 1f);
-        //topFace.transform.localPosition = (doorHeight_ + (height_ - doorHeight_) / 2f) * Vector3.up;
         topFace.transform.localPosition = doorHeight_ * Vector3.up + width_ / 2 * Vector3.left;
     }
 
-    public void InitializeFaces()
+    public void CreateLeftFace()
     {
-        topFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        topFace.transform.SetParent(transform);
-        topFace.transform.localScale = new Vector3(width_, height_ - doorHeight_, 1f);
-        topFace.transform.localPosition = (doorHeight_ + (height_ - doorHeight_) / 2f) * Vector3.up;
-
-        leftFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        leftFace = new GameObject();
+        leftFace.AddComponent<QuadCreator>();
+        leftFace.GetComponent<QuadCreator>().SetParameters(edgeWidth_, doorHeight_, 0, 0, edgeWidth_/width_, doorHeight_ / height_, mat_);
+        leftFace.GetComponent<QuadCreator>().CreateMesh();
         leftFace.transform.SetParent(transform);
-        leftFace.transform.localScale = new Vector3(edgeWidth_, doorHeight_, 1f);
-        leftFace.transform.localPosition = (doorHeight_  / 2f) * Vector3.up + (width_/2f - edgeWidth_/2f) * Vector3.left;
-
-        rightFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        rightFace.transform.SetParent(transform);
-        rightFace.transform.localScale = new Vector3(edgeWidth_, doorHeight_, 1f);
-        rightFace.transform.localPosition = (doorHeight_ / 2f) * Vector3.up + (width_ / 2f - edgeWidth_ / 2f) * Vector3.right;
-
-        spaceBetweenDoors_ = width_ - 2 * doorWidth_ - 2 * edgeWidth_;
-        middleFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        middleFace.transform.SetParent(transform);
-        middleFace.transform.localScale = new Vector3(spaceBetweenDoors_, doorHeight_, 1f);
-        middleFace.transform.localPosition = (doorHeight_ / 2f) * Vector3.up;
+        leftFace.transform.localPosition = width_ / 2 * Vector3.left;
     }
 
-    private void AddTopFaceMesh()
+    public void CreateRightFace()
     {
-        MeshRenderer meshRenderer = topFace.GetComponent<MeshRenderer>();
-        meshRenderer.sharedMaterial = mat_;
-        
-        MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+        rightFace = new GameObject();
+        rightFace.AddComponent<QuadCreator>();
+        rightFace.GetComponent<QuadCreator>().SetParameters(edgeWidth_, doorHeight_, // Face dimensions
+            (width_ - edgeWidth_) / width_, 0, 1, doorHeight_ / height_,             // UVs
+            mat_);
+        rightFace.GetComponent<QuadCreator>().CreateMesh();
+        rightFace.transform.SetParent(transform);
+        rightFace.transform.localPosition = (width_ / 2 - edgeWidth_) * Vector3.right;
+    }
 
-        Mesh mesh = new Mesh();
+    public void CreateMiddleFace()
+    {
+        // Make sure this is initialized first
+        spaceBetweenDoors_ = width_ - 2 * doorWidth_ - 2 * edgeWidth_;
 
-        Vector3[] vertices = new Vector3[4]
-        {
-            new Vector3(0, 0, 0),
-            new Vector3(width_, 0, 0),
-            new Vector3(0, height_ - doorHeight_, 0),
-            new Vector3(width_, height_ - doorHeight_, 0)
-        };
-        mesh.vertices = vertices;
-
-        int[] tris = new int[6]
-        {
-            // lower left triangle
-            0, 2, 1,
-            // upper right triangle
-            2, 3, 1
-        };
-        mesh.triangles = tris;
-
-        Vector3[] normals = new Vector3[4]
-        {
-            -Vector3.forward,
-            -Vector3.forward,
-            -Vector3.forward,
-            -Vector3.forward
-        };
-        mesh.normals = normals;
-
-        float u1, v1, u2, v2;
-        u1 = 0f;
-        v1 = (doorHeight_ / height_);
-        u2 = 1f;
-        v2 = 1f;
-        Vector2[] uv = new Vector2[4]
-        {
-            new Vector2(u1, v1),
-            new Vector2(u2, v1),
-            new Vector2(u1, v2),
-            new Vector2(u2, v2)
-        };
-        mesh.uv = uv;
-
-        meshFilter.mesh = mesh;
+        middleFace = new GameObject();
+        middleFace.AddComponent<QuadCreator>();
+        middleFace.GetComponent<QuadCreator>().SetParameters(spaceBetweenDoors_, doorHeight_,                                        // Face dimensions
+            (doorWidth_ + edgeWidth_) / width_, 0, (doorWidth_ + edgeWidth_ + spaceBetweenDoors_) / width_, doorHeight_ / height_,   // UVs
+            mat_);
+        middleFace.GetComponent<QuadCreator>().CreateMesh();
+        middleFace.transform.SetParent(transform);
+        middleFace.transform.localPosition = spaceBetweenDoors_ / 2 * Vector3.left;
     }
 }
