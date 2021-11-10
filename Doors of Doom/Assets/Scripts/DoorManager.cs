@@ -9,6 +9,7 @@ public class DoorManager : MonoBehaviour
     public float roomHeight_ = 10f;
 
     public Material stoneBrickUncolored;
+    public Material woodDoorUncolored;
 
     // Start is called before the first frame update
     void Start()
@@ -18,6 +19,18 @@ public class DoorManager : MonoBehaviour
         doorWall.AddComponent<DoorWall>();
         doorWall.GetComponent<DoorWall>().SetMaterial(stoneBrickUncolored);
         doorWall.GetComponent<DoorWall>().CreateFaces();
+
+        GameObject leftDoor = new GameObject();
+        leftDoor.transform.position = new Vector3(-2.5f, 0f, 5f - 0.25f);
+        leftDoor.AddComponent<Door>();
+        leftDoor.GetComponent<Door>().SetMaterial(woodDoorUncolored);
+        leftDoor.GetComponent<Door>().CreateFaces();
+
+        GameObject rightDoor = new GameObject();
+        rightDoor.transform.position = new Vector3(2.5f, 0f, 5f - 0.25f);
+        rightDoor.AddComponent<Door>();
+        rightDoor.GetComponent<Door>().SetMaterial(woodDoorUncolored);
+        rightDoor.GetComponent<Door>().CreateFaces();
     }
 
     // Update is called once per frame

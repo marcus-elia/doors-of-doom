@@ -17,6 +17,8 @@ public class Door : MonoBehaviour
     private GameObject leftFace;
     private GameObject rightFace;
 
+    private Material mat_;
+
     private bool isOpening_ = false;
     private bool isClosing_ = false;
     private bool isOpen_ = false;
@@ -31,8 +33,7 @@ public class Door : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        pivot_ = transform.position - transform.right * width_ / 2f - transform.forward * height_ / 2f;
-        this.CreateFaces();
+        pivot_ = transform.position + transform.right * width_ / 2f - transform.forward * height_ / 2f;
     }
 
     // Update is called once per frame
@@ -75,44 +76,91 @@ public class Door : MonoBehaviour
     //      Initialization Functions
     //
     // ===================================
+
+    public void SetMaterial(Material inputMat)
+    {
+        mat_ = inputMat;
+    }
     public void CreateFaces()
     {
-        topFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        topFace.transform.SetParent(transform);
-        topFace.transform.localScale = new Vector3(width_, depth_, 1f);
-        topFace.transform.localPosition = height_ / 2f * Vector3.up;
-        topFace.transform.Rotate(Vector3.right, 90f);
+        this.CreateFrontFace();
+        this.CreateBackFace();
+        this.CreateRightFace();
+        this.CreateLeftFace();
+        this.CreateTopFace();
+        this.CreateBottomFace();
+    }
 
-        bottomFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        bottomFace.transform.SetParent(transform);
-        bottomFace.transform.localScale = new Vector3(width_, depth_, 1f);
-        bottomFace.transform.localPosition = height_ / 2f * Vector3.down;
-        bottomFace.transform.Rotate(Vector3.right, -90f);
-
-        backFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        backFace.transform.SetParent(transform);
-        backFace.transform.localScale = new Vector3(width_, height_, 1f);
-        backFace.transform.localPosition = depth_ / 2f * Vector3.forward;
-        backFace.transform.Rotate(Vector3.up, 180f);
-
-        frontFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+    public void CreateFrontFace()
+    {
+        frontFace = new GameObject();
+        frontFace.AddComponent<QuadCreator>();
+        frontFace.GetComponent<QuadCreator>().SetParameters(width_, height_, 0, 0, width_ / (width_ + depth_), 1, mat_);
+        frontFace.GetComponent<QuadCreator>().CreateMesh();
         frontFace.transform.SetParent(transform);
-        frontFace.transform.localScale = new Vector3(width_, height_, 1f);
-        frontFace.transform.localPosition = depth_ / 2f * Vector3.back;
-        // Don't need to rotate this one
+        frontFace.transform.localPosition = width_ / 2 * Vector3.left;
+    }
 
-        rightFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+    public void CreateRightFace()
+    {
+        rightFace = new GameObject();
+        rightFace.AddComponent<QuadCreator>();
+        rightFace.GetComponent<QuadCreator>().SetParameters(depth_, height_, width_ / (width_ + depth_), 0, 1, 1, mat_);
+        rightFace.GetComponent<QuadCreator>().CreateMesh();
         rightFace.transform.SetParent(transform);
-        rightFace.transform.localScale = new Vector3(depth_, height_, 1f);
         rightFace.transform.localPosition = width_ / 2f * Vector3.right;
         rightFace.transform.Rotate(Vector3.up, -90f);
+    }
 
-        leftFace = GameObject.CreatePrimitive(PrimitiveType.Quad);
+    public void CreateBackFace()
+    {
+        backFace = new GameObject();
+        backFace.AddComponent<QuadCreator>();
+        backFace.GetComponent<QuadCreator>().SetParameters(width_, height_, 0, 0, width_ / (width_ + depth_), 1, mat_);
+        backFace.GetComponent<QuadCreator>().CreateMesh();
+        backFace.transform.SetParent(transform);
+        backFace.transform.localPosition = depth_ * Vector3.forward + width_ / 2 * Vector3.right;
+        backFace.transform.Rotate(Vector3.up, 180f);
+    }
+
+    public void CreateLeftFace()
+    {
+        leftFace = new GameObject();
+        leftFace.AddComponent<QuadCreator>();
+        leftFace.GetComponent<QuadCreator>().SetParameters(depth_, height_, width_ / (width_ + depth_), 0, 1, 1, mat_);
+        leftFace.GetComponent<QuadCreator>().CreateMesh();
         leftFace.transform.SetParent(transform);
-        leftFace.transform.localScale = new Vector3(depth_, height_, 1f);
-        leftFace.transform.localPosition = width_ / 2f * Vector3.left;
+        leftFace.transform.localPosition = width_ / 2f * Vector3.left + depth_ * Vector3.forward;
         leftFace.transform.Rotate(Vector3.up, 90f);
     }
+
+    public void CreateTopFace()
+    {
+        topFace = new GameObject();
+        topFace.AddComponent<QuadCreator>();
+        topFace.GetComponent<QuadCreator>().SetParameters(width_, depth_, 0, 0, 1, 0.1f, mat_);
+        topFace.GetComponent<QuadCreator>().CreateMesh();
+        topFace.transform.SetParent(transform);
+        topFace.transform.localPosition = height_ * Vector3.up + width_/2 * Vector3.left;
+        topFace.transform.Rotate(Vector3.right, 90f);
+    }
+
+    public void CreateBottomFace()
+    {
+        bottomFace = new GameObject();
+        bottomFace.AddComponent<QuadCreator>();
+        bottomFace.GetComponent<QuadCreator>().SetParameters(width_, depth_, 0, 0, 1, 0.1f, mat_);
+        bottomFace.GetComponent<QuadCreator>().CreateMesh();
+        bottomFace.transform.SetParent(transform);
+        bottomFace.transform.localPosition = width_ / 2 * Vector3.left + depth_ * Vector3.forward;
+        bottomFace.transform.Rotate(Vector3.right, -90f);
+    }
+
+    // ===============================================
+    //
+    //              Door Interactions
+    //
+    // ===============================================
 
     public void Open()
     {
