@@ -19,8 +19,8 @@ public class DoorManager : MonoBehaviour
     private static float rightDoorX = 2.5f;
     private static float hallwayEndZ = roomDepth_/2 + hallwayDepth_ - 2f;
 
-    private static Vector3 leftBadGuySpawn = new Vector3(leftDoorX, 3, hallwayEndZ - 1);
-    private static Vector3 rightBadGuySpawn = new Vector3(rightDoorX, 3, hallwayEndZ - 1);
+    private static Vector3 leftItemSpawnPosition_ = new Vector3(leftDoorX, 2, hallwayEndZ - 1);
+    private static Vector3 rightItemSpawnPosition_ = new Vector3(rightDoorX, 2, hallwayEndZ - 1);
 
     // Materials
     public Material stoneBrickUncolored;
@@ -31,16 +31,28 @@ public class DoorManager : MonoBehaviour
 
     // Game Management
     private GameState currentState = GameState.Choosing;
+    private bool badGuySpawned_ = false;
+    private bool snowballSpawned_ = false;
     private int level = 0;
 
     public Transform playerTransform;
     private Vector3 playerStartPosition_ = new Vector3(0, 1.5f, -4);
-    public float playerLateralSpeed = 0.002f;
-    public float playerForwardSpeed = 0.005f;
+    public float playerLateralSpeed_ = 0.002f;
+    public float playerForwardSpeed_ = 0.005f;
+    private float playerRadius_ = 1f;
+
+    private int numSnowballs_ = 0;
+
+    private static float collisionDistance_ = 1.5f;
+    private static float throwingForce_ = 15f;
 
     // Other prefabs
     public GameObject badGuyPrefab;
     private GameObject currentBadGuy_;
+    public GameObject snowballPrefab;
+    private GameObject currentSnowball_;
+    public GameObject snowballProjectilePrefab;
+    public static List<GameObject> thrownProjectiles = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
@@ -120,7 +132,7 @@ public class DoorManager : MonoBehaviour
         {
             if(playerTransform.position.x > leftDoorX)
             {
-                playerTransform.Translate(-playerLateralSpeed, 0, 0);
+                playerTransform.Translate(-playerLateralSpeed_, 0, 0);
             }
             else
             {
@@ -132,7 +144,7 @@ public class DoorManager : MonoBehaviour
         {
             if (playerTransform.position.x < rightDoorX)
             {
-                playerTransform.Translate(playerLateralSpeed, 0, 0);
+                playerTransform.Translate(playerLateralSpeed_, 0, 0);
             }
             else
             {
@@ -142,7 +154,7 @@ public class DoorManager : MonoBehaviour
         }
         else if(currentState == GameState.PlayerMoveForward)
         {
-            playerTransform.Translate(0, 0, playerForwardSpeed);
+            playerTransform.Translate(0, 0, playerForwardSpeed_);
 
             if(playerTransform.position.z > roomDepth_ / 2)
             {
@@ -156,7 +168,51 @@ public class DoorManager : MonoBehaviour
         }
         else if(currentState == GameState.PlayerInHallway)
         {
-            playerTransform.Translate(0, 0, playerForwardSpeed);
+            // Move the player forward
+            playerTransform.Translate(0, 0, playerForwardSpeed_);
+
+            // Check if the player has obtained a snowball
+            if(snowballSpawned_ && Vector3.Distance(playerTransform.position, currentSnowball_.transform.position) < collisionDistance_)
+            {
+                Destroy(currentSnowball_);
+                numSnowballs_++;
+                UIManager.numSnowballs = numSnowballs_;
+                snowballSpawned_ = false;
+            }
+
+            // If the player throws a snowball
+            if(Input.anyKeyDown)
+            {
+                if(numSnowballs_ > 0)
+                {
+                    ThrowSnowball();
+                    numSnowballs_--;
+                }
+            }
+
+            // Check if any snowball hits the bad guy or a snowball
+            for(int i = 0; i < thrownProjectiles.Count; i++)
+            {
+                if(badGuySpawned_ && Vector3.Distance(thrownProjectiles[i].transform.position, currentBadGuy_.transform.position) < collisionDistance_)
+                {
+                    Destroy(currentBadGuy_);
+                    badGuySpawned_ = false;
+                }
+
+                else if (snowballSpawned_ && Vector3.Distance(thrownProjectiles[i].transform.position, currentSnowball_.transform.position) < collisionDistance_)
+                {
+                    Destroy(currentSnowball_);
+                    snowballSpawned_ = false;
+                }
+            }
+
+            // Check if the player has run into the bad guy
+            if (badGuySpawned_ && Vector3.Distance(playerTransform.position, currentBadGuy_.transform.position) < collisionDistance_)
+            {
+                EndGame();
+            }
+
+            // Check if the player reached the end of the hallway
             if (playerTransform.position.z > hallwayEndZ)
             {
                 this.SetupNextLevel();
@@ -170,23 +226,45 @@ public class DoorManager : MonoBehaviour
     private void SetupNextLevel()
     {
         level++;
+        UIManager.level = level;
         currentState = GameState.Choosing;
         playerTransform.position = playerStartPosition_;
+        thrownProjectiles = new List<GameObject>();
         Destroy(currentBadGuy_);
-
+        badGuySpawned_ = false;
+        Destroy(currentSnowball_);
+        snowballSpawned_ = false;
     }
 
     private void SpawnBadGuy()
     {
         currentBadGuy_ = Instantiate(badGuyPrefab);
+        currentSnowball_ = Instantiate(snowballPrefab);
         if(Random.Range(0, 2) == 0)
         {
-            currentBadGuy_.transform.position = leftBadGuySpawn;
+            currentBadGuy_.transform.position = leftItemSpawnPosition_;
+            currentSnowball_.transform.position = rightItemSpawnPosition_;
         }
         else
         {
-            currentBadGuy_.transform.position = rightBadGuySpawn;
+            currentBadGuy_.transform.position = rightItemSpawnPosition_;
+            currentSnowball_.transform.position = leftItemSpawnPosition_;
         }
+        snowballSpawned_ = true;
+        badGuySpawned_ = true;
     }
-    
+
+    public void ThrowSnowball()
+    {
+        GameObject newProj = Instantiate(snowballProjectilePrefab);
+        newProj.transform.position = playerTransform.position + playerTransform.forward * playerRadius_;
+        newProj.GetComponent<Rigidbody>().velocity = new Vector3(0, throwingForce_/3, 2*throwingForce_/3);
+        thrownProjectiles.Add(newProj);
+        UIManager.numSnowballs--;
+    }
+
+    public void EndGame()
+    {
+
+    }
 }
