@@ -380,8 +380,12 @@ MonoBehaviour:
   roomWidth_: 10
   roomDepth_: 10
   roomHeight_: 10
+  hallwayWidth_: 4
+  hallwayDepth_: 10
+  hallwayHeight_: 7
   stoneBrickUncolored: {fileID: 2100000, guid: 34c2d553cc7f75a45bc957a72ef8d79e, type: 2}
   woodDoorUncolored: {fileID: 2100000, guid: 5b018255106711140a41289c60738f81, type: 2}
+  darkness: {fileID: 2100000, guid: e5d17a8aac39f3e499e00335c11d121e, type: 2}
 --- !u!4 &709515968
 Transform:
   m_ObjectHideFlags: 0

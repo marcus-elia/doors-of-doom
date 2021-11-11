@@ -170,11 +170,13 @@ public class Door : MonoBehaviour
     {
         isClosed_ = false;
         isOpening_ = true;
+        isClosing_ = false;
     }
     public void Close()
     {
         isOpen_ = false;
         isClosing_ = true;
+        isOpening_ = false;
     }
 
     public void Toggle()
@@ -189,5 +191,14 @@ public class Door : MonoBehaviour
             isOpening_ = false;
             Close();
         }
+    }
+
+    public bool IsOpen()
+    {
+        return isOpen_;
+    }
+    public bool IsClosed()
+    {
+        return isClosed_;
     }
 } 
