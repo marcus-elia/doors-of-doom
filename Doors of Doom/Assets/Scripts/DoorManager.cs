@@ -31,6 +31,7 @@ public class DoorManager : MonoBehaviour
 
     // Game Management
     private GameState currentState = GameState.Choosing;
+    public UIManager uiManager;
     private bool badGuySpawned_ = false;
     private bool snowballSpawned_ = false;
     private int level = 0;
@@ -265,6 +266,19 @@ public class DoorManager : MonoBehaviour
 
     public void EndGame()
     {
+        Time.timeScale = 0f;
+        uiManager.endScreen.SetActive(true);
+        uiManager.SetResultString();
+    }
 
+    public void RestartGame()
+    {
+        Time.timeScale = 1f;
+        SetupNextLevel();
+        level = 0;
+        numSnowballs_ = 0;
+        UIManager.level = 0;
+        UIManager.numSnowballs = 0;
+        uiManager.endScreen.SetActive(false);
     }
 }
