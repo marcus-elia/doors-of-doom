@@ -46,6 +46,8 @@ public class DoorManager : MonoBehaviour
     private bool snowballSpawned_ = false;
     private int level = 0;
 
+    private int framesSinceRestart_ = 0;
+
     public Transform playerTransform;
     private Vector3 playerStartPosition_ = new Vector3(0, 1.5f, -4);
     private float playerRadius_ = 1f;
@@ -58,16 +60,21 @@ public class DoorManager : MonoBehaviour
     public GameObject ingameUI;
 
     // Speeds that vary by platforms
-    // For the Unity editor =====================================
+    // For the Unity editor ====================================================
     //private static float throwingForce_ = 25f;
     //private float playerLateralSpeed_ = 0.002f;
     //private float playerForwardSpeed_ = 0.0085f;
     //private float doorSpeed_ = -0.1f;
-    // For Windows build ========================================
-    private static float throwingForce_ = 8*25f;
-    private float playerLateralSpeed_ = 8*0.002f;
-    private float playerForwardSpeed_ = 8*0.0085f;
-    private float doorSpeed_ = -8 * 0.1f;
+    // For Windows build or WebGL build ========================================
+    //private static float throwingForce_ = 8*25f;
+    //private float playerLateralSpeed_ = 8*0.002f;
+    //private float playerForwardSpeed_ = 8*0.0085f;
+    //private float doorSpeed_ = -8 * 0.1f;
+    // For Android build ========================================
+    private static float throwingForce_ = 32 * 25f;
+    private float playerLateralSpeed_ = 32 * 0.002f;
+    private float playerForwardSpeed_ = 32 * 0.0085f;
+    private float doorSpeed_ = -32 * 0.1f;
 
     // Other prefabs
     public GameObject badGuyPrefab;
@@ -132,15 +139,21 @@ public class DoorManager : MonoBehaviour
         }
         else if(currentState == GameState.Choosing)
         {
+            // This makes it so you don't choose a door while pressing the play again button
+            if(framesSinceRestart_ < 5)
+            {
+                framesSinceRestart_++;
+                return;
+            }
             // Toggle the left door
             if(LeftUserInput())
             {
-                leftDoor_.GetComponent<Door>().Toggle();
+                leftDoor_.GetComponent<Door>().Open();
             }
             // Toggle the right door
             else if(RightUserInput())
             {
-                rightDoor_.GetComponent<Door>().Toggle();
+                rightDoor_.GetComponent<Door>().Open();
             }
 
             // Check if a door is open all the way
@@ -350,6 +363,7 @@ public class DoorManager : MonoBehaviour
         UIManager.level = 0;
         UIManager.numSnowballs = 0;
         uiManager.endScreen.SetActive(false);
+        framesSinceRestart_ = 0;
     }
 
     public void Quit()
@@ -359,26 +373,21 @@ public class DoorManager : MonoBehaviour
 
     public static bool LeftUserInput()
     {
-        return Input.GetMouseButtonDown(0) ||
-                Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F) ||
-                Input.GetKeyDown(KeyCode.G) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.C) ||
-                Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.B) || Input.GetKeyDown(KeyCode.Q) ||
-                Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.T) ||
-                Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Alpha4) ||
-                Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.LeftAlt) ||
-                Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.CapsLock) || Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.BackQuote);
+        if(Input.touchCount > 0)
+        {
+            return Input.GetTouch(0).position.x <= Screen.width / 2f;
+        }
+        return ((Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) && Input.mousePosition.x <= Screen.width / 2f) ||
+                Input.GetKeyDown(KeyCode.A);
     }
 
     public static bool RightUserInput()
     {
-        return Input.GetMouseButtonDown(1) ||
-                Input.GetKeyDown(KeyCode.H) || Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.K) || Input.GetKeyDown(KeyCode.L) ||
-                Input.GetKeyDown(KeyCode.N) || Input.GetKeyDown(KeyCode.M) || Input.GetKeyDown(KeyCode.Comma) || Input.GetKeyDown(KeyCode.Period) ||
-                Input.GetKeyDown(KeyCode.Y) || Input.GetKeyDown(KeyCode.U) || Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.O) ||
-                Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Semicolon) || Input.GetKeyDown(KeyCode.Slash) || Input.GetKeyDown(KeyCode.Alpha7) ||
-                Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Minus) ||
-                Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.Quote) || Input.GetKeyDown(KeyCode.LeftBracket) || Input.GetKeyDown(KeyCode.RightBracket) ||
-                Input.GetKeyDown(KeyCode.RightControl) || Input.GetKeyDown(KeyCode.RightAlt) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.RightShift) ||
-                Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Backslash);
+        if (Input.touchCount > 0)
+        {
+            return Input.GetTouch(0).position.x > Screen.width / 2f;
+        }
+        return ((Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) && Input.mousePosition.x > Screen.width / 2) ||
+                Input.GetKeyDown(KeyCode.D);
     }
 }

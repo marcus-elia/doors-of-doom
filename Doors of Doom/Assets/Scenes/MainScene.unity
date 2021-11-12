@@ -2222,9 +2222,8 @@ MonoBehaviour:
   m_Text: "Choose either the left door, or the\nright door. Behind one door is a
     bad guy,\nand behind the other is a snowball you\ncan pick up. If a bad guy touches
     you,\n you lose. Press any key or click to throw \na snowball to defeat the bad
-    guy. To choose the left door, left click or press a key on the left side of the
-    keyboard. To choose the right door, right click or press a key on the right side
-    of the keyboard.\nPress any key or click to start."
+    guy. To choose the left door, click on the left side or press A. To choose the
+    right door, click on the right side or press D.\nPress any key or click to start."
 --- !u!222 &1231529456
 CanvasRenderer:
   m_ObjectHideFlags: 0

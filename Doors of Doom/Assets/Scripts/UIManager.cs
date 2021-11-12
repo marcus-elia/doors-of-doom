@@ -56,7 +56,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            resultMessage.text = "You got through " + level.ToString() + " doors.\n You're a sophisticated door-opener.";
+            resultMessage.text = "You got through " + level.ToString() + " doors!!!.\n You're Rob.";
         }
     }
 }
