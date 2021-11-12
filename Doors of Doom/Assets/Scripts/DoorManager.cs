@@ -48,17 +48,26 @@ public class DoorManager : MonoBehaviour
 
     public Transform playerTransform;
     private Vector3 playerStartPosition_ = new Vector3(0, 1.5f, -4);
-    private float playerLateralSpeed_ = 0.002f;
-    private float playerForwardSpeed_ = 0.0085f;
     private float playerRadius_ = 1f;
 
     private int numSnowballs_ = 0;
 
     private static float collisionDistance_ = 1.5f;
-    private static float throwingForce_ = 25f;
 
     public GameObject instructionsUI;
     public GameObject ingameUI;
+
+    // Speeds that vary by platforms
+    // For the Unity editor =====================================
+    //private static float throwingForce_ = 25f;
+    //private float playerLateralSpeed_ = 0.002f;
+    //private float playerForwardSpeed_ = 0.0085f;
+    //private float doorSpeed_ = -0.1f;
+    // For Windows build ========================================
+    private static float throwingForce_ = 8*25f;
+    private float playerLateralSpeed_ = 8*0.002f;
+    private float playerForwardSpeed_ = 8*0.0085f;
+    private float doorSpeed_ = -8 * 0.1f;
 
     // Other prefabs
     public GameObject badGuyPrefab;
@@ -84,6 +93,7 @@ public class DoorManager : MonoBehaviour
         leftDoor_.GetComponent<Door>().SetMaterial(woodDoorUncolored);
         leftDoor_.GetComponent<Door>().CreateFaces();
         leftDoor_.GetComponent<Door>().SetPivot();
+        leftDoor_.GetComponent<Door>().SetSpeed(doorSpeed_);
 
         rightDoor_ = new GameObject();
         rightDoor_.transform.position = new Vector3(2.5f, 0f, 5f - 0.25f);
@@ -91,6 +101,7 @@ public class DoorManager : MonoBehaviour
         rightDoor_.GetComponent<Door>().SetMaterial(woodDoorUncolored);
         rightDoor_.GetComponent<Door>().CreateFaces();
         rightDoor_.GetComponent<Door>().SetPivot();
+        rightDoor_.GetComponent<Door>().SetSpeed(doorSpeed_);
 
         leftHallway_ = new GameObject();
         leftHallway_.transform.position = new Vector3(-2.5f, hallwayHeight_ / 2, roomDepth_ / 2 + hallwayDepth_ / 2);

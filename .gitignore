@@ -9,6 +9,7 @@
 /Doors of Doom/[Bb]uilds/
 /Doors of Doom/[Ll]ogs/
 /Doors of Doom/[Mm]emoryCaptures/
+/Doors of Doom/[Uu]serSettings/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta

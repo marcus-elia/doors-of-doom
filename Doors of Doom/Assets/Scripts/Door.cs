@@ -27,7 +27,7 @@ public class Door : MonoBehaviour
     private float angle_ = 0;
 
     // The negative makes it open ccw
-    private float speed_ = -0.1f;
+    private float speed_;
 
     private Vector3 pivot_;
 
@@ -80,6 +80,10 @@ public class Door : MonoBehaviour
     public void SetMaterial(Material inputMat)
     {
         mat_ = inputMat;
+    }
+    public void SetSpeed(float input)
+    {
+        speed_ = input;
     }
     public void SetPivot()
     {
