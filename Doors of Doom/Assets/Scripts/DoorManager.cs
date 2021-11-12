@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum GameState { Choosing, PlayerMoveLeft, PlayerMoveRight, PlayerMoveForward, PlayerInHallway };
+public enum GameState { Choosing, PlayerMoveLeft, PlayerMoveRight, PlayerMoveForward, PlayerInHallway, EndScreen };
 
 public class DoorManager : MonoBehaviour
 {
@@ -19,13 +19,23 @@ public class DoorManager : MonoBehaviour
     private static float rightDoorX = 2.5f;
     private static float hallwayEndZ = roomDepth_/2 + hallwayDepth_ - 2f;
 
-    private static Vector3 leftItemSpawnPosition_ = new Vector3(leftDoorX, 2, hallwayEndZ - 1);
-    private static Vector3 rightItemSpawnPosition_ = new Vector3(rightDoorX, 2, hallwayEndZ - 1);
+    private static Vector3 leftItemSpawnPosition_ = new Vector3(leftDoorX, 2.5f, hallwayEndZ - 1);
+    private static Vector3 rightItemSpawnPosition_ = new Vector3(rightDoorX, 2.5f, hallwayEndZ - 1);
+
+    public GameObject leftWall;
+    public GameObject rightWall;
+    public GameObject backWall;
+    public GameObject floor;
+    public GameObject ceiling;
 
     // Materials
     public Material stoneBrickUncolored;
     public Material woodDoorUncolored;
     public Material darkness;
+    public Material stoneBrickBlue;
+    public Material stoneBrickDark;
+    public Material stoneBrickGreen;
+    public Material stoneBrickRed;
 
     private GameObject doorWall_, leftDoor_, rightDoor_, leftHallway_, rightHallway_;
 
@@ -38,17 +48,18 @@ public class DoorManager : MonoBehaviour
 
     public Transform playerTransform;
     private Vector3 playerStartPosition_ = new Vector3(0, 1.5f, -4);
-    public float playerLateralSpeed_ = 0.002f;
-    public float playerForwardSpeed_ = 0.005f;
+    private float playerLateralSpeed_ = 0.002f;
+    private float playerForwardSpeed_ = 0.0075f;
     private float playerRadius_ = 1f;
 
     private int numSnowballs_ = 0;
 
     private static float collisionDistance_ = 1.5f;
-    private static float throwingForce_ = 15f;
+    private static float throwingForce_ = 25f;
 
     // Other prefabs
     public GameObject badGuyPrefab;
+    public GameObject badGuyPrefab2;
     private GameObject currentBadGuy_;
     public GameObject snowballPrefab;
     private GameObject currentSnowball_;
@@ -210,6 +221,7 @@ public class DoorManager : MonoBehaviour
             // Check if the player has run into the bad guy
             if (badGuySpawned_ && Vector3.Distance(playerTransform.position, currentBadGuy_.transform.position) < collisionDistance_)
             {
+                currentState = GameState.EndScreen;
                 EndGame();
             }
 
@@ -218,10 +230,13 @@ public class DoorManager : MonoBehaviour
             {
                 this.SetupNextLevel();
             }
+
+            // Move the bad guy closer
+            if (badGuySpawned_)
+            {
+                currentBadGuy_.transform.Translate(0, 0, playerForwardSpeed_);
+            }
         }
-
-
-
     }
 
     private void SetupNextLevel()
@@ -235,12 +250,24 @@ public class DoorManager : MonoBehaviour
         badGuySpawned_ = false;
         Destroy(currentSnowball_);
         snowballSpawned_ = false;
+        currentState = GameState.Choosing;
+        this.SetRandomMaterial();
     }
 
     private void SpawnBadGuy()
     {
-        currentBadGuy_ = Instantiate(badGuyPrefab);
+        // Create the bad guy and the snowball
+        if(Random.Range(0, 2) == 0)
+        {
+            currentBadGuy_ = Instantiate(badGuyPrefab);
+        }
+        else
+        {
+            currentBadGuy_ = Instantiate(badGuyPrefab2);
+        }
         currentSnowball_ = Instantiate(snowballPrefab);
+
+        // Randomly choose which side to put them on
         if(Random.Range(0, 2) == 0)
         {
             currentBadGuy_.transform.position = leftItemSpawnPosition_;
@@ -259,9 +286,37 @@ public class DoorManager : MonoBehaviour
     {
         GameObject newProj = Instantiate(snowballProjectilePrefab);
         newProj.transform.position = playerTransform.position + playerTransform.forward * playerRadius_;
-        newProj.GetComponent<Rigidbody>().velocity = new Vector3(0, throwingForce_/3, 2*throwingForce_/3);
+        newProj.GetComponent<Rigidbody>().velocity = new Vector3(0, throwingForce_/2, throwingForce_/3);
         thrownProjectiles.Add(newProj);
         UIManager.numSnowballs--;
+    }
+
+    public void SetRandomMaterial()
+    {
+        Material newMat;
+        int r = Random.Range(0, 6);
+        switch (r)
+        {
+            case 1:
+                newMat = stoneBrickBlue;
+                break;
+            case 2:
+                newMat = stoneBrickDark;
+                break;
+            case 3:
+                newMat = stoneBrickGreen;
+                break;
+            case 4:
+                newMat = stoneBrickRed;
+                break;
+            default:
+                newMat = stoneBrickUncolored;
+                break;
+        }
+        doorWall_.GetComponent<DoorWall>().UpdateMaterial(newMat);
+        leftWall.GetComponent<Renderer>().material = newMat;
+        rightWall.GetComponent<Renderer>().material = newMat;
+        backWall.GetComponent<Renderer>().material = newMat;
     }
 
     public void EndGame()
@@ -280,5 +335,10 @@ public class DoorManager : MonoBehaviour
         UIManager.level = 0;
         UIManager.numSnowballs = 0;
         uiManager.endScreen.SetActive(false);
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
     }
 }

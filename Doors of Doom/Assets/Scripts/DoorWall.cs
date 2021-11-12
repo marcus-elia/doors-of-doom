@@ -53,6 +53,15 @@ public class DoorWall : MonoBehaviour
         mat_ = inputMat;
     }
 
+    public void UpdateMaterial(Material inputMat)
+    {
+        SetMaterial(inputMat);
+        leftFace.GetComponent<MeshRenderer>().material = mat_;
+        rightFace.GetComponent<MeshRenderer>().material = mat_;
+        topFace.GetComponent<MeshRenderer>().material = mat_;
+        middleFace.GetComponent<MeshRenderer>().material = mat_;
+    }
+
     public void CreateFaces()
     {
         this.CreateTopFace();
