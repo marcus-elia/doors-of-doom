@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum GameState { Choosing, PlayerMoveLeft, PlayerMoveRight, PlayerMoveForward, PlayerInHallway, EndScreen };
+public enum GameState { StartScreen, Choosing, PlayerMoveLeft, PlayerMoveRight, PlayerMoveForward, PlayerInHallway, EndScreen };
 
 public class DoorManager : MonoBehaviour
 {
@@ -19,8 +19,8 @@ public class DoorManager : MonoBehaviour
     private static float rightDoorX = 2.5f;
     private static float hallwayEndZ = roomDepth_/2 + hallwayDepth_ - 2f;
 
-    private static Vector3 leftItemSpawnPosition_ = new Vector3(leftDoorX, 2.5f, hallwayEndZ - 1);
-    private static Vector3 rightItemSpawnPosition_ = new Vector3(rightDoorX, 2.5f, hallwayEndZ - 1);
+    private static Vector3 leftItemSpawnPosition_ = new Vector3(leftDoorX, 2.5f, hallwayEndZ - 2);
+    private static Vector3 rightItemSpawnPosition_ = new Vector3(rightDoorX, 2.5f, hallwayEndZ - 2);
 
     public GameObject leftWall;
     public GameObject rightWall;
@@ -40,7 +40,7 @@ public class DoorManager : MonoBehaviour
     private GameObject doorWall_, leftDoor_, rightDoor_, leftHallway_, rightHallway_;
 
     // Game Management
-    private GameState currentState = GameState.Choosing;
+    private GameState currentState = GameState.StartScreen;
     public UIManager uiManager;
     private bool badGuySpawned_ = false;
     private bool snowballSpawned_ = false;
@@ -49,13 +49,16 @@ public class DoorManager : MonoBehaviour
     public Transform playerTransform;
     private Vector3 playerStartPosition_ = new Vector3(0, 1.5f, -4);
     private float playerLateralSpeed_ = 0.002f;
-    private float playerForwardSpeed_ = 0.0075f;
+    private float playerForwardSpeed_ = 0.0085f;
     private float playerRadius_ = 1f;
 
     private int numSnowballs_ = 0;
 
     private static float collisionDistance_ = 1.5f;
     private static float throwingForce_ = 25f;
+
+    public GameObject instructionsUI;
+    public GameObject ingameUI;
 
     // Other prefabs
     public GameObject badGuyPrefab;
@@ -107,23 +110,24 @@ public class DoorManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(currentState == GameState.Choosing)
+        if(currentState == GameState.StartScreen)
+        {
+            if(Input.anyKeyDown)
+            {
+                currentState = GameState.Choosing;
+                instructionsUI.SetActive(false);
+                ingameUI.SetActive(true);
+            }
+        }
+        else if(currentState == GameState.Choosing)
         {
             // Toggle the left door
-            if(Input.GetMouseButtonDown(0) || 
-                Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F) ||
-                Input.GetKeyDown(KeyCode.G) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.C) ||
-                Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.B) || Input.GetKeyDown(KeyCode.Q) ||
-                Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.T))
+            if(LeftUserInput())
             {
                 leftDoor_.GetComponent<Door>().Toggle();
             }
             // Toggle the right door
-            else if(Input.GetMouseButtonDown(1) ||
-                Input.GetKeyDown(KeyCode.H) || Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.K) || Input.GetKeyDown(KeyCode.L) ||
-                Input.GetKeyDown(KeyCode.N) || Input.GetKeyDown(KeyCode.M) || Input.GetKeyDown(KeyCode.Comma) || Input.GetKeyDown(KeyCode.Period) ||
-                Input.GetKeyDown(KeyCode.Y) || Input.GetKeyDown(KeyCode.U) || Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.O) ||
-                Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Semicolon) || Input.GetKeyDown(KeyCode.Slash))
+            else if(RightUserInput())
             {
                 rightDoor_.GetComponent<Door>().Toggle();
             }
@@ -340,5 +344,30 @@ public class DoorManager : MonoBehaviour
     public void Quit()
     {
         Application.Quit();
+    }
+
+    public static bool LeftUserInput()
+    {
+        return Input.GetMouseButtonDown(0) ||
+                Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F) ||
+                Input.GetKeyDown(KeyCode.G) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.C) ||
+                Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.B) || Input.GetKeyDown(KeyCode.Q) ||
+                Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.T) ||
+                Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Alpha4) ||
+                Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.LeftAlt) ||
+                Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.CapsLock) || Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.BackQuote);
+    }
+
+    public static bool RightUserInput()
+    {
+        return Input.GetMouseButtonDown(1) ||
+                Input.GetKeyDown(KeyCode.H) || Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.K) || Input.GetKeyDown(KeyCode.L) ||
+                Input.GetKeyDown(KeyCode.N) || Input.GetKeyDown(KeyCode.M) || Input.GetKeyDown(KeyCode.Comma) || Input.GetKeyDown(KeyCode.Period) ||
+                Input.GetKeyDown(KeyCode.Y) || Input.GetKeyDown(KeyCode.U) || Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.O) ||
+                Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Semicolon) || Input.GetKeyDown(KeyCode.Slash) || Input.GetKeyDown(KeyCode.Alpha7) ||
+                Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Minus) ||
+                Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.Quote) || Input.GetKeyDown(KeyCode.LeftBracket) || Input.GetKeyDown(KeyCode.RightBracket) ||
+                Input.GetKeyDown(KeyCode.RightControl) || Input.GetKeyDown(KeyCode.RightAlt) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.RightShift) ||
+                Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Backslash);
     }
 }
